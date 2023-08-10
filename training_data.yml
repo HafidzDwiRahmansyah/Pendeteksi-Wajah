@@ -1,0 +1,53 @@
+import cv2
+import os
+
+# Fungsi untuk melakukan pelatihan
+def train_face_recognizer(data_dir):
+    # Mendapatkan path lengkap ke direktori data pelatihan
+    data_dir = os.path.abspath(data_dir)
+
+    # Membuat list untuk menyimpan wajah dan label yang terdeteksi
+    faces = []
+    labels = []
+
+    # Mendapatkan list direktori yang ada di dalam data pelatihan
+    dir_list = os.listdir(data_dir)
+
+    # Loop melalui setiap direktori (kelas) dalam data pelatihan
+    for dir_name in dir_list:
+        # Mendapatkan path lengkap ke direktori kelas
+        dir_path = os.path.join(data_dir, dir_name)
+
+        # Jika direktori bukan file, lanjutkan ke direktori berikutnya
+        if not os.path.isdir(dir_path):
+            continue
+
+        # Mendapatkan label yang sesuai dengan nama direktori
+        label = int(dir_name)
+
+        # Mendapatkan list file gambar dalam direktori kelas
+        img_list = os.listdir(dir_path)
+
+        # Loop melalui setiap file gambar dalam direktori kelas
+        for img_name in img_list:
+            # Mendapatkan path lengkap ke file gambar
+            img_path = os.path.join(dir_path, img_name)
+
+            # Membaca gambar dalam skala keabuan
+            img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+
+            # Menambahkan wajah dan label ke list
+            faces.append(img)
+            labels.append(label)
+
+    # Membuat recognizer dan melatihnya dengan data wajah dan label
+    recognizer = cv2.face.LBPHFaceRecognizer_create()
+    recognizer.train(faces, np.array(labels))
+
+    # Menyimpan model pelatihan ke dalam file
+    recognizer.save('training_data.yml')
+
+    print("Pelatihan selesai.")
+
+# Menjalankan pelatihan dengan direktori data pelatihan yang sesuai
+train_face_recognizer('data_pelatihan')
